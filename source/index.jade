@@ -1,0 +1,22 @@
+extend ./layout/layout.jade
+
+block  mainVars
+  - title = index.title
+  - author = 'author'
+  - description = 'description'
+  - keywords = 'keywords'
+  - page_class = 'top'
+block content
+  .btn.open open
+  #main
+    - var i = 0
+    while i < 10
+      p Amet officiis quibusdam ut nemo eveniet? Officia quo sapiente perspiciatis placeat vel. Tempore aspernatur officiis similique animi libero excepturi! Eum itaque nihil distinctio quaerat error quaerat molestiae vitae repellendus nisi!
+      - i++
+
+  #slide
+    ul
+      each li in slideNav
+        li
+          a(href="#")= li.li
+
