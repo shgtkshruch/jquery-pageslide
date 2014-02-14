@@ -28,25 +28,50 @@ class Pageslide
     @bodyMarginLeft = parseInt @$body.css('margin-left'), 10
     @bodyMarginRight = parseInt @$body.css('margin-right'), 10
 
-    # open flag
-    @isOpen = false
-
     # event setting
     @ua = navigator.userAgent
 
     if @ua.indexOf('iPhone') > -1 or
       @ua.indexOf('iPad') > -1 or
-      @ua.indexOf('iPad') > -1 or
+      @ua.indexOf('iPod') > -1 or
       @ua.indexOf('Android') > -1
         @openEvent = 'touchend' 
         @closeEvent = 'touchstart'
     else
-      @openEvent = 'click'
-      @closeEvent = 'click'
+      @openEvent = @closeEvent = 'click'
+
+    # open flag
+    @isOpen = false
+
+    # direction flag
+    if @options.slidePosition is 'left'
+      @isLeft = true
+    else
+      @isLeft = false
+
+    # create animation object
+    @slideCss = {}
+    @slideAnimation = {}
+    @bodyAnimation = {}
 
     @_init()
 
   _init: ->
+    # Animation setting by direction
+    @slideCss["#{@options.slidePosition}"] = -@slideWidth
+
+    @slideAnimation["#{@options.slidePosition}"] = 0
+
+    @bodyAnimation['margin-left'] =
+      if @isLeft
+      then @bodyMarginLeft + @slideWidth
+      else @bodyMarginLeft - @slideWidth
+
+    @bodyAnimation['margin-right'] =
+      if @isLeft
+      then @bodyMarginRight - @slideWidth
+      else @bodyMarginRight + @slideWidth
+
     # event handling
     @$open.on @openEvent, => @open()
     @$close.on @closeEvent, => @close()
@@ -55,53 +80,23 @@ class Pageslide
   open: ->
     return if @isOpen is true
     @isOpen = true
-    switch @options.slidePosition
-      when 'left'
-        @$slide
-          .css
-            display: 'block'
-            left: -@slideWidth
-          .animate
-            left: 0
-          , @options.duration, @options.easing
 
-        @$body
-          .animate
-            'margin-left': @bodyMarginLeft + @slideWidth
-            'margin-right': @bodyMarginRight - @slideWidth
-          , @options.duration, @options.easing
+    # open animation
+    @$slide
+      .show()
+      .css @slideCss
+      .animate @slideAnimation, @options.duration, @options.easing
 
-      when 'right'
-        @$slide
-          .css
-            display: 'block'
-            right: -@slideWidth
-          .animate
-            right: 0
-          , @options.duration, @options.easing
-
-        @$body
-          .animate
-            'margin-left': @bodyMarginLeft - @slideWidth
-            'margin-right': @bodyMarginRight + @slideWidth
-          , @options.duration, @options.easing
-    @
+    @$body
+      .animate @bodyAnimation, @options.duration, @options.easing
 
   close: ->
     return if @isOpen is false
     @isOpen = false
-    switch @options.slidePosition
-      when 'left'
-        @$slide
-          .animate
-            left: -@slideWidth
-          , @options.duration, @options.easing, => @_callback()
 
-      when 'right'
-        @$slide
-          .animate
-            right: -@slideWidth
-          , @options.duration, @options.easing, => @_callback()
+    # close animation
+    @$slide
+      .animate @slideCss, @options.duration, @options.easing, => @_callback() 
 
     @$body
       .animate
@@ -111,9 +106,7 @@ class Pageslide
 
   _callback: ->
     @$slide
-      .css
-        display: 'none'
-    @
+      .hide()
 
 # jQuery plugin setting
 $.fn.pageslide = (options) ->

@@ -19,19 +19,30 @@
       this.slideWidth = this.$slide.outerWidth();
       this.bodyMarginLeft = parseInt(this.$body.css('margin-left'), 10);
       this.bodyMarginRight = parseInt(this.$body.css('margin-right'), 10);
-      this.isOpen = false;
       this.ua = navigator.userAgent;
-      if (this.ua.indexOf('iPhone') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('Android') > -1) {
+      if (this.ua.indexOf('iPhone') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('iPod') > -1 || this.ua.indexOf('Android') > -1) {
         this.openEvent = 'touchend';
         this.closeEvent = 'touchstart';
       } else {
-        this.openEvent = 'click';
-        this.closeEvent = 'click';
+        this.openEvent = this.closeEvent = 'click';
       }
+      this.isOpen = false;
+      if (this.options.slidePosition === 'left') {
+        this.isLeft = true;
+      } else {
+        this.isLeft = false;
+      }
+      this.slideCss = {};
+      this.slideAnimation = {};
+      this.bodyAnimation = {};
       this._init();
     }
 
     Pageslide.prototype._init = function() {
+      this.slideCss["" + this.options.slidePosition] = -this.slideWidth;
+      this.slideAnimation["" + this.options.slidePosition] = 0;
+      this.bodyAnimation['margin-left'] = this.isLeft ? this.bodyMarginLeft + this.slideWidth : this.bodyMarginLeft - this.slideWidth;
+      this.bodyAnimation['margin-right'] = this.isLeft ? this.bodyMarginRight - this.slideWidth : this.bodyMarginRight + this.slideWidth;
       this.$open.on(this.openEvent, (function(_this) {
         return function() {
           return _this.open();
@@ -50,32 +61,8 @@
         return;
       }
       this.isOpen = true;
-      switch (this.options.slidePosition) {
-        case 'left':
-          this.$slide.css({
-            display: 'block',
-            left: -this.slideWidth
-          }).animate({
-            left: 0
-          }, this.options.duration, this.options.easing);
-          this.$body.animate({
-            'margin-left': this.bodyMarginLeft + this.slideWidth,
-            'margin-right': this.bodyMarginRight - this.slideWidth
-          }, this.options.duration, this.options.easing);
-          break;
-        case 'right':
-          this.$slide.css({
-            display: 'block',
-            right: -this.slideWidth
-          }).animate({
-            right: 0
-          }, this.options.duration, this.options.easing);
-          this.$body.animate({
-            'margin-left': this.bodyMarginLeft - this.slideWidth,
-            'margin-right': this.bodyMarginRight + this.slideWidth
-          }, this.options.duration, this.options.easing);
-      }
-      return this;
+      this.$slide.show().css(this.slideCss).animate(this.slideAnimation, this.options.duration, this.options.easing);
+      return this.$body.animate(this.bodyAnimation, this.options.duration, this.options.easing);
     };
 
     Pageslide.prototype.close = function() {
@@ -83,25 +70,11 @@
         return;
       }
       this.isOpen = false;
-      switch (this.options.slidePosition) {
-        case 'left':
-          this.$slide.animate({
-            left: -this.slideWidth
-          }, this.options.duration, this.options.easing, (function(_this) {
-            return function() {
-              return _this._callback();
-            };
-          })(this));
-          break;
-        case 'right':
-          this.$slide.animate({
-            right: -this.slideWidth
-          }, this.options.duration, this.options.easing, (function(_this) {
-            return function() {
-              return _this._callback();
-            };
-          })(this));
-      }
+      this.$slide.animate(this.slideCss, this.options.duration, this.options.easing, (function(_this) {
+        return function() {
+          return _this._callback();
+        };
+      })(this));
       return this.$body.animate({
         'margin-left': this.bodyMarginLeft,
         'margin-right': this.bodyMarginRight
@@ -109,10 +82,7 @@
     };
 
     Pageslide.prototype._callback = function() {
-      this.$slide.css({
-        display: 'none'
-      });
-      return this;
+      return this.$slide.hide();
     };
 
     return Pageslide;

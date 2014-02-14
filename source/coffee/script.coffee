@@ -1,7 +1,7 @@
 $ ->
   $ '#slide'
     .pageslide(
-      # slidePosition: 'right'
+      slidePosition: 'right'
       open: '.open'
       close: '#main'
     )
