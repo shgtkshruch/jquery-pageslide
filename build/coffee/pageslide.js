@@ -3,8 +3,9 @@
 
   Pageslide = (function() {
     Pageslide.prototype.defaults = {
-      open: '.open',
-      close: '#main',
+      slidePosition: 'left',
+      open: '',
+      close: '',
       duration: 200,
       easing: 'swing'
     };
@@ -27,10 +28,10 @@
         this.openEvent = 'click';
         this.closeEvent = 'click';
       }
-      this.init();
+      this._init();
     }
 
-    Pageslide.prototype.init = function() {
+    Pageslide.prototype._init = function() {
       this.$open.on(this.openEvent, (function(_this) {
         return function() {
           return _this.open();
@@ -49,16 +50,31 @@
         return;
       }
       this.isOpen = true;
-      this.$slide.css({
-        'display': 'block',
-        'left': -this.slideWidth
-      }).animate({
-        'left': 0
-      }, this.options.duration, this.options.easing);
-      this.$body.animate({
-        'margin-left': this.bodyMarginLeft + this.slideWidth,
-        'margin-right': this.bodyMarginRight - this.slideWidth
-      }, this.options.duration, this.options.easing);
+      switch (this.options.slidePosition) {
+        case 'left':
+          this.$slide.css({
+            display: 'block',
+            left: -this.slideWidth
+          }).animate({
+            left: 0
+          }, this.options.duration, this.options.easing);
+          this.$body.animate({
+            'margin-left': this.bodyMarginLeft + this.slideWidth,
+            'margin-right': this.bodyMarginRight - this.slideWidth
+          }, this.options.duration, this.options.easing);
+          break;
+        case 'right':
+          this.$slide.css({
+            display: 'block',
+            right: -this.slideWidth
+          }).animate({
+            right: 0
+          }, this.options.duration, this.options.easing);
+          this.$body.animate({
+            'margin-left': this.bodyMarginLeft - this.slideWidth,
+            'margin-right': this.bodyMarginRight + this.slideWidth
+          }, this.options.duration, this.options.easing);
+      }
       return this;
     };
 
@@ -67,23 +83,34 @@
         return;
       }
       this.isOpen = false;
-      this.$slide.animate({
-        'left': -this.slideWidth
-      }, this.options.duration, this.options.easing, (function(_this) {
-        return function() {
-          return _this._callback();
-        };
-      })(this));
-      this.$body.animate({
+      switch (this.options.slidePosition) {
+        case 'left':
+          this.$slide.animate({
+            left: -this.slideWidth
+          }, this.options.duration, this.options.easing, (function(_this) {
+            return function() {
+              return _this._callback();
+            };
+          })(this));
+          break;
+        case 'right':
+          this.$slide.animate({
+            right: -this.slideWidth
+          }, this.options.duration, this.options.easing, (function(_this) {
+            return function() {
+              return _this._callback();
+            };
+          })(this));
+      }
+      return this.$body.animate({
         'margin-left': this.bodyMarginLeft,
         'margin-right': this.bodyMarginRight
       }, this.options.duration, this.options.easing);
-      return this;
     };
 
     Pageslide.prototype._callback = function() {
       this.$slide.css({
-        'display': 'none'
+        display: 'none'
       });
       return this;
     };

@@ -2,9 +2,12 @@ class Pageslide
 
   defaults:
 
+    # slide menu position
+    slidePosition: 'left'
+
     # event object
-    open: '.open'
-    close: '#main'
+    open: ''
+    close: ''
 
     # animation options
     duration: 200
@@ -41,10 +44,10 @@ class Pageslide
       @openEvent = 'click'
       @closeEvent = 'click'
 
-    @init()
+    @_init()
 
-  init: ->
-    # event hundling
+  _init: ->
+    # event handling
     @$open.on @openEvent, => @open()
     @$close.on @closeEvent, => @close()
     @
@@ -52,40 +55,64 @@ class Pageslide
   open: ->
     return if @isOpen is true
     @isOpen = true
-    @$slide
-      .css
-        'display': 'block'
-        'left': -@slideWidth
-      .animate
-        'left': 0
-      , @options.duration, @options.easing
+    switch @options.slidePosition
+      when 'left'
+        @$slide
+          .css
+            display: 'block'
+            left: -@slideWidth
+          .animate
+            left: 0
+          , @options.duration, @options.easing
 
-    @$body
-      .animate
-        'margin-left': @bodyMarginLeft + @slideWidth
-        'margin-right': @bodyMarginRight - @slideWidth
-      , @options.duration, @options.easing
+        @$body
+          .animate
+            'margin-left': @bodyMarginLeft + @slideWidth
+            'margin-right': @bodyMarginRight - @slideWidth
+          , @options.duration, @options.easing
+
+      when 'right'
+        @$slide
+          .css
+            display: 'block'
+            right: -@slideWidth
+          .animate
+            right: 0
+          , @options.duration, @options.easing
+
+        @$body
+          .animate
+            'margin-left': @bodyMarginLeft - @slideWidth
+            'margin-right': @bodyMarginRight + @slideWidth
+          , @options.duration, @options.easing
     @
 
   close: ->
     return if @isOpen is false
     @isOpen = false
-    @$slide
-      .animate
-        'left': -@slideWidth
-      , @options.duration, @options.easing, => @_callback()
+    switch @options.slidePosition
+      when 'left'
+        @$slide
+          .animate
+            left: -@slideWidth
+          , @options.duration, @options.easing, => @_callback()
+
+      when 'right'
+        @$slide
+          .animate
+            right: -@slideWidth
+          , @options.duration, @options.easing, => @_callback()
 
     @$body
       .animate
         'margin-left': @bodyMarginLeft
         'margin-right': @bodyMarginRight
       , @options.duration, @options.easing
-    @
 
   _callback: ->
     @$slide
       .css
-        'display': 'none'
+        display: 'none'
     @
 
 # jQuery plugin setting
