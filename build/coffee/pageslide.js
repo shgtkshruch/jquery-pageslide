@@ -1,24 +1,24 @@
 (function() {
-  var Pageslide,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var Pageslide;
 
   Pageslide = (function() {
     Pageslide.prototype.defaults = {
       open: '.open',
       close: '#main',
       duration: 200,
-      easing: 'swing',
-      isOpen: false
+      easing: 'swing'
     };
 
     function Pageslide($el, options) {
-      this._callback = __bind(this._callback, this);
       this.options = $.extend({}, this.defaults, options);
       this.$body = $('body');
       this.$open = $(this.options.open);
       this.$close = $(this.options.close);
       this.$slide = $el;
       this.slideWidth = this.$slide.outerWidth();
+      this.bodyMarginLeft = parseInt(this.$body.css('margin-left'), 10);
+      this.bodyMarginRight = parseInt(this.$body.css('margin-right'), 10);
+      this.isOpen = false;
       this.ua = navigator.userAgent;
       if (this.ua.indexOf('iPhone') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('Android') > -1) {
         this.openEvent = 'touchend';
@@ -27,49 +27,58 @@
         this.openEvent = 'click';
         this.closeEvent = 'click';
       }
-      this.open();
-      this.close();
+      this.init();
     }
 
-    Pageslide.prototype.open = function() {
-      return this.$open.on(this.openEvent, (function(_this) {
+    Pageslide.prototype.init = function() {
+      this.$open.on(this.openEvent, (function(_this) {
         return function() {
-          if (_this.options.isOpen === true) {
-            return;
-          }
-          _this.options.isOpen = true;
-          _this.$slide.css({
-            'display': 'block',
-            'left': -_this.slideWidth
-          }).animate({
-            'left': 0
-          }, _this.options.duration, _this.options.easing);
-          _this.$body.animate({
-            'margin-left': _this.slideWidth,
-            'margin-right': -_this.slideWidth
-          }, _this.options.duration, _this.options.easing);
-          return _this;
+          return _this.open();
         };
       })(this));
+      this.$close.on(this.closeEvent, (function(_this) {
+        return function() {
+          return _this.close();
+        };
+      })(this));
+      return this;
+    };
+
+    Pageslide.prototype.open = function() {
+      if (this.isOpen === true) {
+        return;
+      }
+      this.isOpen = true;
+      this.$slide.css({
+        'display': 'block',
+        'left': -this.slideWidth
+      }).animate({
+        'left': 0
+      }, this.options.duration, this.options.easing);
+      this.$body.animate({
+        'margin-left': this.bodyMarginLeft + this.slideWidth,
+        'margin-right': this.bodyMarginRight - this.slideWidth
+      }, this.options.duration, this.options.easing);
+      return this;
     };
 
     Pageslide.prototype.close = function() {
-      return this.$close.on(this.closeEvent, (function(_this) {
+      if (this.isOpen === false) {
+        return;
+      }
+      this.isOpen = false;
+      this.$slide.animate({
+        'left': -this.slideWidth
+      }, this.options.duration, this.options.easing, (function(_this) {
         return function() {
-          if (_this.options.isOpen === false) {
-            return;
-          }
-          _this.options.isOpen = false;
-          _this.$slide.animate({
-            'left': -_this.slideWidth
-          }, _this.options.duration, _this.options.easing, _this._callback);
-          _this.$body.animate({
-            'margin-left': 0,
-            'margin-right': 0
-          }, _this.options.duration, _this.options.easing);
-          return _this;
+          return _this._callback();
         };
       })(this));
+      this.$body.animate({
+        'margin-left': this.bodyMarginLeft,
+        'margin-right': this.bodyMarginRight
+      }, this.options.duration, this.options.easing);
+      return this;
     };
 
     Pageslide.prototype._callback = function() {

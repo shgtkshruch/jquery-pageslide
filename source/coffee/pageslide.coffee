@@ -10,69 +10,79 @@ class Pageslide
     duration: 200
     easing: 'swing'
 
-    # open flag
-    isOpen: false
-
   constructor: ($el, options) ->
 
     @options = $.extend {}, @defaults, options
 
+    # get jQuery Object
     @$body = $ 'body'
     @$open = $ @options.open
     @$close = $ @options.close
     @$slide = $el
     @slideWidth = @$slide.outerWidth()
 
+    # get default body margin
+    @bodyMarginLeft = parseInt @$body.css('margin-left'), 10
+    @bodyMarginRight = parseInt @$body.css('margin-right'), 10
+
+    # open flag
+    @isOpen = false
+
     # event setting
     @ua = navigator.userAgent
-    if @ua.indexOf('iPhone') > -1 or @ua.indexOf('iPad') > -1 or @ua.indexOf('iPad') > -1 or @ua.indexOf('Android') > -1
-      @openEvent = 'touchend' 
-      @closeEvent = 'touchstart'
+
+    if @ua.indexOf('iPhone') > -1 or
+      @ua.indexOf('iPad') > -1 or
+      @ua.indexOf('iPad') > -1 or
+      @ua.indexOf('Android') > -1
+        @openEvent = 'touchend' 
+        @closeEvent = 'touchstart'
     else
       @openEvent = 'click'
       @closeEvent = 'click'
 
-    @open()
-    @close()
+    @init()
+
+  init: ->
+    # event hundling
+    @$open.on @openEvent, => @open()
+    @$close.on @closeEvent, => @close()
+    @
 
   open: ->
-    @$open.on(@openEvent, =>
-      return if @options.isOpen is true
-      @options.isOpen = true
-      @$slide
-        .css
-          'display': 'block'
-          'left': -@slideWidth
-        .animate
-          'left': 0
-        , @options.duration, @options.easing
-          
-      @$body
-        .animate
-          'margin-left': @slideWidth
-          'margin-right': -@slideWidth
-        , @options.duration, @options.easing
-      @
-    )
+    return if @isOpen is true
+    @isOpen = true
+    @$slide
+      .css
+        'display': 'block'
+        'left': -@slideWidth
+      .animate
+        'left': 0
+      , @options.duration, @options.easing
+
+    @$body
+      .animate
+        'margin-left': @bodyMarginLeft + @slideWidth
+        'margin-right': @bodyMarginRight - @slideWidth
+      , @options.duration, @options.easing
+    @
 
   close: ->
-    @$close.on(@closeEvent, =>
-      return if @options.isOpen is false
-      @options.isOpen = false
-      @$slide
-        .animate
-          'left': -@slideWidth
-        , @options.duration, @options.easing, @_callback
+    return if @isOpen is false
+    @isOpen = false
+    @$slide
+      .animate
+        'left': -@slideWidth
+      , @options.duration, @options.easing, => @_callback()
 
-      @$body
-        .animate
-          'margin-left': 0
-          'margin-right': 0
-        , @options.duration, @options.easing
-      @
-    )
+    @$body
+      .animate
+        'margin-left': @bodyMarginLeft
+        'margin-right': @bodyMarginRight
+      , @options.duration, @options.easing
+    @
 
-  _callback: =>
+  _callback: ->
     @$slide
       .css
         'display': 'none'
