@@ -19,12 +19,20 @@
       this.$close = $(this.options.close);
       this.$slide = $el;
       this.slideWidth = this.$slide.outerWidth();
+      this.ua = navigator.userAgent;
+      if (this.ua.indexOf('iPhone') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('Android') > -1) {
+        this.openEvent = 'touchend';
+        this.closeEvent = 'touchstart';
+      } else {
+        this.openEvent = 'click';
+        this.closeEvent = 'click';
+      }
       this.open();
       this.close();
     }
 
     Pageslide.prototype.open = function() {
-      this.$open.click((function(_this) {
+      return this.$open.on(this.openEvent, (function(_this) {
         return function() {
           if (_this.options.isOpen === true) {
             return;
@@ -43,11 +51,10 @@
           return _this;
         };
       })(this));
-      return this;
     };
 
     Pageslide.prototype.close = function() {
-      this.$close.click((function(_this) {
+      return this.$close.on(this.closeEvent, (function(_this) {
         return function() {
           if (_this.options.isOpen === false) {
             return;
@@ -63,7 +70,6 @@
           return _this;
         };
       })(this));
-      return this;
     };
 
     Pageslide.prototype._callback = function() {

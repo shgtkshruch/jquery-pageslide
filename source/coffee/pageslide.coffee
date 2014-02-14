@@ -6,7 +6,7 @@ class Pageslide
     open: '.open'
     close: '#main'
 
-    #animation options
+    # animation options
     duration: 200
     easing: 'swing'
 
@@ -23,11 +23,20 @@ class Pageslide
     @$slide = $el
     @slideWidth = @$slide.outerWidth()
 
+    # event setting
+    @ua = navigator.userAgent
+    if @ua.indexOf('iPhone') > -1 or @ua.indexOf('iPad') > -1 or @ua.indexOf('iPad') > -1 or @ua.indexOf('Android') > -1
+      @openEvent = 'touchend' 
+      @closeEvent = 'touchstart'
+    else
+      @openEvent = 'click'
+      @closeEvent = 'click'
+
     @open()
     @close()
 
   open: ->
-    @$open.click =>
+    @$open.on(@openEvent, =>
       return if @options.isOpen is true
       @options.isOpen = true
       @$slide
@@ -44,10 +53,10 @@ class Pageslide
           'margin-right': -@slideWidth
         , @options.duration, @options.easing
       @
-    @
+    )
 
   close: ->
-    @$close.click =>
+    @$close.on(@closeEvent, =>
       return if @options.isOpen is false
       @options.isOpen = false
       @$slide
@@ -61,7 +70,7 @@ class Pageslide
           'margin-right': 0
         , @options.duration, @options.easing
       @
-    @
+    )
 
   _callback: =>
     @$slide
