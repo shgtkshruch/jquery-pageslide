@@ -1,9 +1,8 @@
 (function() {
   $(function() {
     return $('#slide').pageslide({
-      slidePosition: 'right',
-      open: '.open',
-      close: '#main'
+      slidePosition: 'left',
+      open: '.open'
     });
   });
 

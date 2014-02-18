@@ -26,17 +26,6 @@ gulp.task 'connect', $.connect.server
     file: 'index.html'
     browser: 'chrome'
 
-# concat
-# https://github.com/wearefractal/gulp-concat
-gulp.task 'concat', ->
-  gulp.src './source/data/**/*.yml'
-    .pipe $.newer './data/all.yml'
-    .pipe $.concat 'all.yml'
-    .pipe gulp.dest './data'
-    .pipe $.notify 
-      title: 'Concat task complete'
-      message: '<%= file.relative %>'
-
 # clean
 # https://github.com/peter-vilja/gulp-clean
 gulp.task 'clean', ->
@@ -49,14 +38,12 @@ gulp.task 'clean', ->
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
-  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
   gulp.src './source/**/*.jade'
     .pipe $.newer './tmp'
     .pipe gulp.dest './tmp'
     .pipe $.filter '!layout/**'
     .pipe $.jade
       pretty: true
-      data: contents
     .pipe gulp.dest './build'
     .pipe $.connect.reload()
     .pipe $.notify 
@@ -98,15 +85,8 @@ gulp.task 'browser-sync', ->
 
 gulp.task 'default', ['connect'], ->
   gulp.watch './source/**/*.jade', ['jade']
-  gulp.watch './source/data/**/*.yml', ['concat']
   gulp.watch './source/stylus/**/*.styl', ['stylus']
   gulp.watch './source/coffee/**/*.coffee', ['coffee']
-
-gulp.task 'i', ['concat'], ->
-  gulp.src ['./source/**/*.jade', './source/**/*.coffee']
-    .pipe gulp.dest './tmp'
-  gulp.start 'connect'
-  open 'http://localhost:' + config.SERVERPORT
 
 gulp.task 's', ['browser-sync']
 

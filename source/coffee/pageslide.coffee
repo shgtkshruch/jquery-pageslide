@@ -7,7 +7,7 @@ class Pageslide
 
     # event object
     open: ''
-    close: ''
+    close: 'body'
 
     # animation options
     duration: 200
@@ -40,9 +40,6 @@ class Pageslide
     else
       @openEvent = @closeEvent = 'click'
 
-    # open flag
-    @isOpen = false
-
     # direction flag
     if @options.slidePosition is 'left'
       @isLeft = true
@@ -73,14 +70,12 @@ class Pageslide
       else @bodyMarginRight + @slideWidth
 
     # event handling
-    @$open.on @openEvent, => @open()
-    @$close.on @closeEvent, => @close()
+    @$close.on @closeEvent, (e) => @close(e)
+    @$open.on @openEvent, () => @open()
     @
 
-  open: ->
-    return if @isOpen is true
-    @isOpen = true
-
+  open: () ->
+    return if @$slide.is ':visible'
     # open animation
     @$slide
       .show()
@@ -90,9 +85,11 @@ class Pageslide
     @$body
       .animate @bodyAnimation, @options.duration, @options.easing
 
-  close: ->
-    return if @isOpen is false
-    @isOpen = false
+  close: (e) ->
+    return if @$slide.is ':animated'
+    switch @options.slidePosition
+      when 'left' then return if e.clientX < @$slide.outerWidth()
+      when 'right' then return if e.clientX > @$body.outerWidth() - @$slide.outerWidth()
 
     # close animation
     @$slide
